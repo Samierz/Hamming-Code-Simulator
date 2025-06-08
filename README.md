@@ -2,7 +2,7 @@
 
 Bu proje, **Hamming SEC-DED (Single Error Correction, Double Error Detection)** kodlama mantığını görselleştirerek kullanıcıların ikili veriler (binary data) üzerinden tek ve çift bit hatalarını simüle edip düzeltmesini sağlar.
 
-[Projenin demo videosunu izlemek için tıklayabilirsiniz](sad)
+[Projenin demo videosunu izlemek için tıklayabilirsiniz](https://www.youtube.com/watch?v=BmD_1Q-258Y)
 
 ## 🚀 Özellikler
 
