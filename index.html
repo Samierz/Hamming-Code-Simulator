@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hamming Code Simülatorü </title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #f1f1f1;
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    background: #1e1e1e;
+    width: 100%;
+    padding: 30px 40px 40px;
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2.6rem;
+    color: #4dabf7;
+    margin-bottom: 30px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    display: block;
+    color: #dddddd;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 1.4rem;
+    border-radius: 12px;
+    border: 2px solid #4dabf7;
+    background-color: #2c2c2c;
+    color: #f1f1f1;
+    outline-offset: 2px;
+    outline-color: #4dabf7;
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.5em;
+    box-sizing: border-box;
+    margin-bottom: 30px;
+    transition: border-color 0.3s ease;
+  }
+
+  input[type="text"]:focus {
+    border-color: #228be6;
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 35px;
+  }
+
+  button {
+    background-color: #228be6;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.2rem;
+    padding: 14px 28px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(35, 122, 220, 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    min-width: 160px;
+    user-select: none;
+  }
+
+  button:hover {
+    background-color: #1a73e8;
+    box-shadow: 0 10px 20px rgba(26, 115, 232, 0.5);
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  .output {
+    background: #2b2b2b;
+    border-radius: 16px;
+    padding: 20px 25px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.6em;
+    white-space: pre-wrap;
+    min-height: 64px;
+    color: #f1f1f1;
+    line-height: 1.5;
+    user-select: text;
+    font-size: 1rem;
+  }
+
+  .bit {
+    cursor: default;
+    user-select: none;
+    font-size: 1.4rem;
+  }
+
+  .parityBit {
+    color: #40c057;
+    font-weight: 700;
+  }
+
+  .secBit {
+    color: #339af0;
+    font-weight: 700;
+  }
+
+  .errorBit {
+    color: #fa5252;
+    font-weight: 900;
+    text-shadow: 0 0 3px #fa5252aa;
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 20px 10px;
+    }
+    .container {
+      padding: 20px 20px 30px;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    input[type="text"] {
+      font-size: 1.2rem;
+      letter-spacing: 0.3em;
+      padding: 12px 14px;
+    }
+    button {
+      min-width: 100%;
+      font-size: 1.1rem;
+      padding: 12px 0;
+    }
+    .button-group {
+      gap: 12px;
+    }
+    .output {
+      font-size: 1.2rem;
+      letter-spacing: 0.4em;
+      padding: 16px 18px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Hamming Code Simülatorü</h1>
+
+  <label for="dataInput">İkili Veri (8, 16 veya 32 bit):</label>
+  <input id="dataInput" type="text" maxlength="32" placeholder="Örn: 10101010" />
+
+  <div class="button-group">
+    <button onclick="createHammingCode()">Hamming Kodu Hesapla</button>
+    <button onclick="injectSingleError()">Rastgele Tek Bit Hata Ekle</button>
+    <button onclick="injectDoubleError()">Rastgele Çift Bit Hata Ekle</button>
+    <button onclick="detectAndFixError()">Hataları Düzelt</button>
+  </div>
+
+  <div id="generatedCode" class="output"></div>
+  <div id="errorCode" class="output"></div>
+  <div id="correctionResult" class="output"></div>
+</div>
+
+<script>
+    // Hamming kodu oluşturma ve hata düzeltme simülatörü
+    // Değişkenler
+  let baseCode = [];
+  let modifiedCode = [];
+  let parityPositions = [];
+  let secBitPosition = 0;
+  let errorPositions = [];
+// Fonksiyonlar
+
+//Hamming kodunu yazdırma fonksiyonu
+  function createHammingCode() {
+    errorPositions = [];
+    const userInput = document.getElementById("dataInput").value.trim();
+
+    if (!/^[01]{8}$|^[01]{16}$|^[01]{32}$/.test(userInput)) {
+      alert("Lütfen 8, 16 veya 32 bitlik veri giriniz!");
+      return;
+    }
+
+    const reversedData = userInput.split("").reverse().join("");
+    baseCode = buildHammingCode(reversedData);
+    modifiedCode = [...baseCode];
+    parityPositions = getParityPositions(baseCode.length);
+    secBitPosition = baseCode.length - 1; // 0-based son bit
+
+    document.getElementById("generatedCode").innerHTML = 
+      "Hamming code: " + renderBits(baseCode, [], parityPositions, secBitPosition);
+    document.getElementById("errorCode").innerText = "";
+    document.getElementById("correctionResult").innerText = "";
+  }
+
+// Hamming kodunu oluşturma fonksiyonu
+  function buildHammingCode(bits) {
+    const dataLength = bits.length;
+    let parityCount = 0;
+
+    while (2 ** parityCount - 1 < dataLength + parityCount) {
+      parityCount++;
+    }
+
+    const totalLength = dataLength + parityCount + 1;
+    const codeArray = new Array(totalLength).fill(0);
+// Parity bitleri ve veri bitlerini yerleştirme
+    let dataIndex = 0;
+    for (let pos = 1; pos <= totalLength; pos++) {
+      if ((pos & (pos - 1)) !== 0 && pos !== totalLength) {
+        codeArray[pos - 1] = parseInt(bits[dataIndex]);
+        dataIndex++;
+      }
+    }
+// Parity bitlerini hesaplama
+    for (let i = 0; i < parityCount; i++) {
+      const parityPos = 2 ** i;
+      let parityVal = 0;
+      for (let k = 1; k <= totalLength; k++) {
+        if ((k & parityPos) !== 0 && k !== totalLength) {
+          parityVal ^= codeArray[k - 1];
+        }
+      }
+      codeArray[parityPos - 1] = parityVal;
+    }
+// Son bit için ikincil parity bitini hesaplama
+    let secBit = 0;
+    for (let i = 0; i < totalLength - 1; i++) {
+      secBit ^= codeArray[i];
+    }
+    codeArray[totalLength - 1] = secBit;
+
+    return codeArray;
+  }
+// Parity bitlerinin pozisyonlarını hesaplama fonksiyonu
+  function getParityPositions(length) {
+    const positions = [];
+    let i = 0;
+    while (2 ** i < length) {
+      positions.push(2 ** i - 1);
+      i++;
+    }
+    return positions;
+  }
+// Bitleri render etme fonksiyonu
+  function renderBits(bitsArray, errors = [], parityPos = [], secPos = -1) {
+    const len = bitsArray.length;
+    let result = "";
+
+    for (let i = len - 1; i >= 0; i--) {
+      let classes = ["bit"];
+
+      if (i === secPos) classes.push("secBit");
+      else if (parityPos.includes(i)) classes.push("parityBit");
+      if (errors.includes(i)) classes.push("errorBit");
+
+      result += `<span class="${classes.join(" ")}">${bitsArray[i]}</span>`;
+    }
+    return result;
+  }
+// Tek bit hatası ekleme fonksiyonu
+  function injectSingleError() {
+    if (baseCode.length === 0) return;
+    errorPositions = [];
+    const errorVersion = [...baseCode];
+    const errorBitPos = Math.floor(Math.random() * errorVersion.length);
+    errorVersion[errorBitPos] ^= 1;
+    errorPositions.push(errorBitPos);
+
+    modifiedCode = errorVersion;
+    document.getElementById("errorCode").innerHTML = 
+      `(bit ${errorBitPos + 1}) hata oluşturuldu: ${renderBits(errorVersion, errorPositions, parityPositions, secBitPosition)}`;
+    document.getElementById("correctionResult").innerText = "";
+  }
+// Çift bit hatası ekleme fonksiyonu
+  function injectDoubleError() {
+    if (baseCode.length === 0) return;
+    errorPositions = [];
+
+    const errorVersion = [...baseCode];
+    let firstError = Math.floor(Math.random() * errorVersion.length);
+    let secondError = Math.floor(Math.random() * errorVersion.length);
+
+    while (secondError === firstError) {
+      secondError = Math.floor(Math.random() * errorVersion.length);
+    }
+
+    errorVersion[firstError] ^= 1;
+    errorVersion[secondError] ^= 1;
+    errorPositions.push(firstError, secondError);
+
+    modifiedCode = errorVersion;
+    document.getElementById("errorCode").innerHTML = 
+      `(bit ${firstError + 1} & ${secondError + 1}) hata oluşturuldu: ${renderBits(errorVersion, errorPositions, parityPositions, secBitPosition)}`;
+    document.getElementById("correctionResult").innerText = "";
+  }
+// Hataları tespit etme ve düzeltme fonksiyonu
+  function detectAndFixError() {
+    if (modifiedCode.length === 0) return;
+    errorPositions = [];
+
+    const indexedData = [0, ...modifiedCode];
+    const length = indexedData.length - 1;
+
+    let parityBitsCount = 0;
+    while (2 ** parityBitsCount < length) parityBitsCount++;
+
+    let syndromeValue = 0;
+// Parity bitlerini kontrol etme
+    for (let i = 0; i < parityBitsCount; i++) {
+      const parityCheckPos = 2 ** i;
+      let parityCalc = 0;
+      for (let j = 1; j < length; j++) {
+        if ((j & parityCheckPos) !== 0) parityCalc ^= indexedData[j];
+      }
+      if (parityCalc !== 0) syndromeValue += parityCheckPos;
+    }
+// Son bitin parity kontrolü
+    let secParity = 0;
+    for (let i = 1; i <= length; i++) {
+      secParity ^= indexedData[i];
+    }
+// Son bitin ikincil parity kontrolü
+    if (syndromeValue === 0 && secParity === 0) {
+      document.getElementById("correctionResult").innerText = "Kodda herhangi hata tespit edilmedi.";
+    } else if (syndromeValue !== 0 && secParity === 1) {
+      indexedData[syndromeValue] ^= 1;
+      errorPositions.push(syndromeValue - 1);
+      modifiedCode = indexedData.slice(1);
+      document.getElementById("correctionResult").innerHTML = 
+        `bit ${syndromeValue} hatalı\n düzeltilmiş hali : ${renderBits(modifiedCode, errorPositions, parityPositions, secBitPosition)}`;
+    } else if (syndromeValue === 0 && secParity === 1) {
+      indexedData[length] ^= 1;
+      errorPositions.push(length - 1);
+      modifiedCode = indexedData.slice(1);
+      document.getElementById("correctionResult").innerHTML = 
+        ` (bit ${length}) hatalı : ${renderBits(modifiedCode, errorPositions, parityPositions, secBitPosition)}`;
+    } else {
+      document.getElementById("correctionResult").innerText = "Çift bitte hata tespit edildi, düzeltme yapılamaz.";
+    }
+  }
+</script>
+
+</body>
+</html>
