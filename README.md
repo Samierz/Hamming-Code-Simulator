@@ -33,7 +33,7 @@ Bu proje, **Hamming SEC-DED (Single Error Correction, Double Error Detection)** 
   -  Tek biti hatalı kod
 
       ![Oyun Ekranı](img/ss3.png)
-   -  Tek biti hatalı kodun düzelt butonuna basıldıktan sonra
+   -  Tek biti hatalı kodda düzelt butonuna basıldıktan sonra
 
       ![Oyun Ekranı](img/ss4.png)
    -  Çift biti hatalı kod
