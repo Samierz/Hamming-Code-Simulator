@@ -14,10 +14,10 @@ Bu proje, **Hamming SEC-DED (Single Error Correction, Double Error Detection)** 
 - 📱 Mobil uyumlu tasarım  
 
 ## 📸 Arayüz Özeti
- Giriş ekranı
+
  
    ![Oyun Ekranı](img/ss1.png)
-
+ Giriş ekranı
 
 - **Veri Girişi:** Kullanıcı 8, 16 veya 32 bitlik ikili veri girer.
 - **Butonlar:**
