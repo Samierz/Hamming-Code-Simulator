@@ -67,7 +67,7 @@ Tek bir HTML dosyasında hem arayüz hem de tüm işlevsellik entegredir:
 ## 🛠 Kullanım
 
 
-1. Sayfayı tarayıcınızda açmak için -->  https://ornekadres.com
+1. Sayfayı tarayıcınızda açmak için --> https://samierz.github.io/Hamming-Code-Simulator/
 2. Veri alanına 8, 16 veya 32 bitlik bir ikili sayı girin.
 3. "Hamming Kodu Hesapla" butonuna basın.
 4. Ardından tek veya çift hata ekleyerek sistemi test edin.
